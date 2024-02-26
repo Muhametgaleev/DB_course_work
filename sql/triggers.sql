@@ -1,43 +1,62 @@
 --Нельзя быть частью распущенной или уничтоженной группы
-CREATE TRIGGER update_group_id
-AFTER UPDATE ON grouping
-FOR EACH ROW
+CREATE FUNCTION update_group_id() RETURNS TRIGGER AS $$
 BEGIN
     IF NEW.status_id != OLD.status_id THEN
-        UPDATE Human SET group_id = NULL WHERE group_id = OLD.group_id;
+        UPDATE "human" SET grouping_id = NULL WHERE grouping_id = OLD.group_id;
     END IF;
+    RETURN NEW;
 END;
+$$ LANGUAGE plpgsql;
 
-
+CREATE TRIGGER update_group_id
+    AFTER UPDATE ON grouping
+    FOR EACH ROW
+EXECUTE FUNCTION update_group_id();
 
 
 --Нельзя перемещаться в локацию, в которой вы уже находитесь
-CREATE TRIGGER prevent_same_location 
-BEFORE INSERT ON movements
-FOR EACH ROW
+CREATE FUNCTION prevent_same_location() RETURNS TRIGGER AS $$
 BEGIN
     IF NEW.location1_id = NEW.location2_id THEN
-        SIGNAL SQLSTATE '45000' 
-        SET MESSAGE_TEXT = 'Невозможно добавить запись с одинаковыми ID локаций';
+        RAISE EXCEPTION 'Невозможно добавить запись с одинаковыми ID локаций';
     END IF;
+    RETURN NEW;
 END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER prevent_same_location
+    BEFORE INSERT ON movements
+    FOR EACH ROW
+EXECUTE FUNCTION prevent_same_location();
+
 
 --Если у персонажа уже есть группа, то он не может ее менять
-CREATE TRIGGER check_group_id 
-BEFORE UPDATE ON Human
-FOR EACH ROW
+CREATE FUNCTION check_group_id() RETURNS TRIGGER AS $$
 BEGIN
     IF NEW.group_id = OLD.group_id AND NEW.group_id IS NOT NULL THEN
-        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Если у персонажа уже есть группа, то он не может ее менять';
+        RAISE EXCEPTION 'Если у персонажа уже есть группа, то он не может ее менять';
     END IF;
+    RETURN NEW;
 END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER check_group_id
+    BEFORE UPDATE ON "human"
+    FOR EACH ROW
+EXECUTE FUNCTION check_group_id();
+
 
 --Злодей не может давать дебаффы на задания с боссами(боссы бывают только в сюжетных заданиях)
-CREATE TRIGGER check_status_trigger
-BEFORE UPDATE ON Action
-FOR EACH ROW
+CREATE FUNCTION check_status_trigger() RETURNS TRIGGER AS $$
 BEGIN
-  IF NEW.status_id = (SELECT id FROM Action_Status WHERE name = 'сюжетная') THEN
-    SET NEW.villain_debuf_id = NULL;
-  END IF;
+    IF NEW.status_id = (SELECT id FROM Action_Status WHERE name = 'сюжетная') THEN
+        SET NEW.villain_debuf_id = NULL;
+    END IF;
+    RETURN NEW;
 END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER check_status_trigger
+    BEFORE UPDATE ON "action"
+    FOR EACH ROW
+EXECUTE FUNCTION check_status_trigger();
