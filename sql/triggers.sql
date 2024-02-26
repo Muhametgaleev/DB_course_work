@@ -2,7 +2,7 @@
 CREATE FUNCTION update_group_id() RETURNS TRIGGER AS $$
 BEGIN
     IF NEW.status_id != OLD.status_id THEN
-        UPDATE "human" SET grouping_id = NULL WHERE grouping_id = OLD.group_id;
+        UPDATE "human" SET grouping_id = NULL WHERE grouping_id = OLD.grouping_id;
     END IF;
     RETURN NEW;
 END;
@@ -17,7 +17,7 @@ EXECUTE FUNCTION update_group_id();
 --Нельзя перемещаться в локацию, в которой вы уже находитесь
 CREATE FUNCTION prevent_same_location() RETURNS TRIGGER AS $$
 BEGIN
-    IF NEW.location1_id = NEW.location2_id THEN
+    IF NEW.location_1_id = NEW.location_2_id THEN
         RAISE EXCEPTION 'Невозможно добавить запись с одинаковыми ID локаций';
     END IF;
     RETURN NEW;
@@ -33,7 +33,7 @@ EXECUTE FUNCTION prevent_same_location();
 --Если у персонажа уже есть группа, то он не может ее менять
 CREATE FUNCTION check_group_id() RETURNS TRIGGER AS $$
 BEGIN
-    IF NEW.group_id = OLD.group_id AND NEW.group_id IS NOT NULL THEN
+    IF NEW.grouping_id = OLD.grouping_id AND NEW.grouping_id IS NOT NULL THEN
         RAISE EXCEPTION 'Если у персонажа уже есть группа, то он не может ее менять';
     END IF;
     RETURN NEW;
