@@ -57,11 +57,11 @@ CREATE OR REPLACE FUNCTION get_results_with_completed_actions() RETURNS TABLE (r
 AS $$
 BEGIN
     RETURN QUERY
-        SELECT res.name
+        SELECT DISTINCT res.name
         FROM result res
                  INNER JOIN action_to_result atr ON res.id = atr.result_id
                  INNER JOIN action a ON atr.action_id = a.id
                  INNER JOIN action_type at ON a.action_type_id = at.id
-        WHERE at.name = 'выполнена';
+        WHERE at.name = 'выполнена'
 END;
 $$ LANGUAGE plpgsql;
