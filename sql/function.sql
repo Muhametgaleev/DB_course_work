@@ -9,12 +9,12 @@ BEGIN
     RETURN QUERY
         SELECT a.name, l.name, vd.name, at.name, ast.name
         FROM action a
-                 JOIN location l ON a.location_id = l.id
-                 JOIN villain_debuffs vd ON a.villain_debuff_id = vd.id
-                 JOIN action_type at ON a.action_type_id = at.id
-                 JOIN action_status ast ON a.status_id = ast.id
-        WHERE a.status_id = (SELECT id FROM action_status WHERE status_name = 'сюжетная')
-                            LIMIT 3;
+                 left JOIN location l ON a.location_id = l.id
+                 left JOIN villain_debuffs vd ON a.villain_debuff_id = vd.id
+                 left JOIN action_type at ON a.action_type_id = at.id
+                 left JOIN action_status ast ON a.status_id = ast.id
+        WHERE ast.name = 'сюжетная'
+                            LIMIT 1;
 END;
 $$ LANGUAGE plpgsql;
 
@@ -30,11 +30,11 @@ BEGIN
     RETURN QUERY
         SELECT a.name, l.name, vd.name, at.name, ast.name
         FROM action a
-                 JOIN location l ON a.location_id = l.id
-                 JOIN villain_debuffs vd ON a.villain_debuff_id = vd.id
-                 JOIN action_type at ON a.action_type_id = at.id
-                 JOIN action_status ast ON a.status_id = ast.id
-        WHERE a.status_id = (SELECT id FROM action_status WHERE status_name = 'побочная')
+                 LEFT JOIN location l ON a.location_id = l.id
+                 LEFT JOIN villain_debuffs vd ON a.villain_debuff_id = vd.id
+                 LEFT JOIN action_type at ON a.action_type_id = at.id
+                 LEFT JOIN action_status ast ON a.status_id = ast.id
+        WHERE ast.name = 'побочная'
                             LIMIT 3;
 END;
 $$ LANGUAGE plpgsql;
