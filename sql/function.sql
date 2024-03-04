@@ -13,7 +13,7 @@ BEGIN
                  left JOIN villain_debuffs vd ON a.villain_debuff_id = vd.id
                  left JOIN action_type at ON a.action_type_id = at.id
                  left JOIN action_status ast ON a.status_id = ast.id
-        WHERE ast.name = 'сюжетная'
+        WHERE ast.name = 'сюжетная' AND at.name <> 'выполнена'
                             LIMIT 1;
 END;
 $$ LANGUAGE plpgsql;
@@ -34,7 +34,7 @@ BEGIN
                  LEFT JOIN villain_debuffs vd ON a.villain_debuff_id = vd.id
                  LEFT JOIN action_type at ON a.action_type_id = at.id
                  LEFT JOIN action_status ast ON a.status_id = ast.id
-        WHERE ast.name = 'побочная'
+        WHERE ast.name = 'побочная' AND at.name <> 'выполнена'
                             LIMIT 3;
 END;
 $$ LANGUAGE plpgsql;
