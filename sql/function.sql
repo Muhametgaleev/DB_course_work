@@ -53,7 +53,7 @@ END;
 $$ LANGUAGE plpgsql;
 
 
-CREATE OR REPLACE FUNCTION get_results_with_completed_actions() RETURNS TABLE (result_name VARCHAR, result_description VARCHAR)
+CREATE OR REPLACE FUNCTION get_results_with_completed_actions() RETURNS TABLE (result_name VARCHAR)
 AS $$
 BEGIN
     RETURN QUERY
